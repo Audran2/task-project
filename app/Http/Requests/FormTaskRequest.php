@@ -25,7 +25,7 @@ class FormTaskRequest extends FormRequest
             'title' => 'required|min:5|max:50',
             'description' => 'required|min:5|max:255',
             'category_id' => 'required|exists:categories,id',
-            'date' => 'required|date',
+            'date' => 'required|date|after:today',
         ];
     }
 }

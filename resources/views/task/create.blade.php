@@ -1,30 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'Création d\'une tâche')
+@section('title', $title)
 
 @section('content')
-    <form action="{{ route('task.store') }}" method="POST">
-        @csrf
-        <div>
-            <label for="title">Titre de la tâche</label>
-            <input type="text" name="title" id="title" value="{{ old('title') }}">
+    <h1 class="text-2xl font-bold mb-4 text-center">{{ $title }}</h1>
+
+    @if ($categories->isEmpty())
+        <div class="flex items-center justify-center h-screen">
+            <div class="text-center">
+                <p class="mb-5">
+                    <b>Aucune catégorie n'est disponible.</b> <br>
+                    Veuillez créer au moins une catégorie avant de créer une tâche.
+                </p>
+                <div class="flex justify-center gap-5">
+                    <a href="{{ route('category.create') }}"
+                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
+                        Créer une catégorie
+                    </a>
+                    <a href="{{ route('task.index') }}"
+                        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded">
+                        Retour
+                    </a>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="description">Description de la tâche</label>
-            <textarea name="description" id="description">{{ old('description') }}</textarea>
-        </div>
-        <div>
-            <label for="category_id">Catégorie</label>
-            <select name="category_id" id="category_id">
-                @foreach ($categories as $category)
-                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label for="date">Date</label>
-            <input type="date" name="date" id="date" value="{{ old('date') }}">
-        </div>
-        <button type="submit">Enregistrer</button>
-    </form>
+    @else
+        {{-- appelle du component formulaire avec les catégories en props --}}
+        <x-task-form :categories="$categories" />
+    @endif
 @endsection

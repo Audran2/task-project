@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 use App\Models\Category;
 use App\Http\Requests\FormCategoryRequest;
 
@@ -10,40 +11,60 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::all();
-        return view('category.index', compact('categories'));
+        $title = "Liste des catégories";
+        $categories = Category::paginate(10);
+        return view('category.index', compact('title', 'categories'));
     }
 
     public function show(string $slug): View
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        $tasks = $category->tasks()->orderBy('date', 'asc')->get();
-        return view('category.show', compact('category', 'tasks'));
+        $title = "Liste des tâches de la catégorie" . $category->name;
+        $tasks = $category->tasks()->orderBy('date', 'asc')->paginate(10);
+        return view('category.show', compact('title', 'category', 'tasks'));
     }
 
     public function create(): View
     {
-        return view('category.create');
+        $title = "Création d'une catégorie";
+        return view('category.create', compact('title'));
     }
 
     public function store(FormCategoryRequest $request)
     {
-        $category = Category::create($request->validated());
+        $data = $request->validated();
+        $data['slug'] = Str::slug($data['name']);
+
+        $category = Category::create($data);
+
         return redirect()->route('category.show', $category->slug);
     }
 
     public function edit(string $slug): View
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        return view('category.edit', compact('category'));
+        $title = "Modification de la catégorie" . $category->name;
+
+        return view('category.edit', compact('title', 'category'));
     }
 
     public function update(FormCategoryRequest $request, string $slug)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        $category->update($request->validated());
+
+        if ($request->name !== $category->name) {
+            $category->update([
+                'name' => $request->name,
+                'slug' => Str::slug($request->name),
+                'color' => $request->color,
+            ]);
+        } else {
+            $category->update($request->validated());
+        }
+
         return redirect()->route('category.show', $category->slug);
     }
+
 
     public function destroy(string $slug)
     {

@@ -1,18 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Créaion d\'une catégorie')
+@section('title', $title)
 
 @section('content')
-    <form action="{{ route('category.store') }}" method="POST">
-        @csrf
-        <div>
-            <label for="name">Nom de la catégorie</label>
-            <input type="text" name="name" id="name" value="{{ old('name') }}">
-        </div>
-        <div>
-            <label for="color">Couleur de la catégorie</label>
-            <input type="color" name="color" id="color" value="{{ old('color') }}">
-        </div>
-        <button type="submit">Enregistrer</button>
-    </form>
+    <h1 class="text-2xl font-bold mb-4 text-center">Création d'une catégorie</h1>
+
+    {{-- appelle du composant formulaire avec aucune props --}}
+    <x-category-form />
 @endsection
