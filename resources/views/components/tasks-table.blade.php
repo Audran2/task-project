@@ -17,7 +17,8 @@
                 <td class="py-2 px-4 border-b border-r text-center">{{ $task->description }}</td>
                 <td class="py-2 px-4 border-b border-r text-center">{{ $task->category->name }}</td>
                 <td class="py-2 px-4 border-b border-r text-center">
-                    {{ $task->date->locale('fr_FR')->isoFormat('dddd D MMMM YYYY') }}</td>
+                    {{ $task->date->locale('fr_FR')->isoFormat('dddd D MMMM YYYY à HH[h]mm') }}
+                </td>
                 <td class="py-2 px-4 border-b text-center">
                     <div class="flex justify-center gap-4">
                         <a href="{{ route('task.show', $task->slug) }}" class="text-blue-500">
