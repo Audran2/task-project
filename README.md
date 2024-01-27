@@ -1,66 +1,97 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Projet laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+pour fonctionner, le projet laravel nécessite seulement l'éxécution des commandes de base : <br>
 
-## About Laravel
+-   `composer update`
+-   `php artisan migrate`
+-   `php artisan serve`
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Pour la gestion d'erreur du formulaire, j'ai installé la langue française sur le projet avec: <br>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   `php artisan lang:publish`
+-   `php artisan lang:add fr`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Fonctionnalités
 
-## Learning Laravel
+### Migrations
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Les migrations sont créés par la commande `php artisan make:migration create_name_table`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+J'ai d'abord créé celle pour les tâches qui contient un id, titre, slug (associé au titre), description, date et les timestamps (création et mise à jour).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+J'ai ensuite créé celle pour la catégorie qui est composée d'un id, nom, slug (associé au nom), une couleur et enfin les timestamps. Dans cette même migration, j'ajoute à la table `tasks` la caractéristique `category_id` en clé étrangère.
 
-## Laravel Sponsors
+Enfin, j'ai créé une dernière migration pour remplir les tables de la base de données avec Faker.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Pour éxécuter les migrations, j'utilise la commande `php artisan migrate`
 
-### Premium Partners
+### model
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Les modèles sont créés via la commande `php artisan make:model Nom`.
 
-## Contributing
+Ils permettent de définir les caractéristiques modifiables ou protégées d'une table ainsi que les relations entre plusieurs tables.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Dans mon cas, le model `Category` dispose d'une fonction définissant une relation OneToMany entre elle et le model `Task`.
 
-## Code of Conduct
+### ControllerRequest
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Ces fichiers sont créés via `php artisan make:request CreateTaskRequest`. Ils permettent de vérifier facilement les informations venant d'un formulaire grâce à la définition de règles.
 
-## Security Vulnerabilities
+### Controller
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Les controller sont créés par la commande `php artisan make:controller NomController`. 3 controller ont été créé.
 
-## License
+Les deux premiers sont les controllers pour les tâches et les catégories.
+Ceux-ci possèdent la même structure et les mêmes fonctions à savoir :
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+-   `index()` avec une pagination de 10 éléments
+-   `show($slug)` qui affiche les détails de la tâche pour Task. Pour la catégorie, j'affiche les tâches qui lui sont reliées dans un tableau rangé par ordre ascendant et avec une pagination de 10 éléments.
+-   `create()` qui redirige vers le formulaire de création.
+-   `store($request)` qui récupère les données du formulaire et les valide avec le fichier `Request`. Si aucun problème n'est rencontré, on crée le slug à partir du titre/nom puis on ajoute les infos dans la table. Une redirection est ensuite effectué vers `show()`
+-   `edit($slug)` qui redirige vers le formulaire de modification.
+-   `update($request, $slug)` qui édit un élément en fonction de son slug et update celui-ci si aucune erreur n'est rencontré. Une redirection est ensuite effectué vers `show()`
+-   `destroy($slug)` qui supprime l'élément en fonction de son slug.
+
+Une dernier controller est aussi créer pour le calendrier. Il n'est composé que de la fonction `index()` et se content d'appeler l'ensemble des tâches et catégories.
+
+### Routes
+
+Les routes dans Laravel définissent les URL et les actions associées. Elles permettent de diriger les requêtes vers les contrôleurs appropriés, facilitant ainsi la gestion des pages et des fonctionnalités de l'application web.
+
+Les routes sont organisées sous un groupe préfixe permettant d'organiser les url associées à un ensemble spécifique de fonctionnalités ou de ressources sous un même préfixe commun. Dans mon cas, mes routes sont actionnées autour des prefix `task` et `category`.
+
+Chaque route est ensuite créée suivant le même model :
+chemin de l'url - appelle d'une méthode spécifique du controller - attribution à un nom.
+
+L'attribution d'un nom permet d'appeler plus facilement la route dans un `<a></a>` d'une view.
+
+### View
+
+Pour chaque fonction dans le controller (excepté `store()` et `update()`), une view est créée.
+
+#### Layout
+
+Pour définir une structure de code similaire et éviter les duplications, j'ai créer un layout. Bien que très basique, il me permet de faire facilement appelle à mes scripts et style (utilisation de tailwind).
+
+#### Components
+
+Pour éviter la duplication de code, j'ai créé différent component qui sont, par la suite appelé sur mes pages.
+
+##### Navbar
+
+Une navbar simple qui est directement appelé dans mon layout
+
+##### Formulaire catégorie et tâche
+
+Afin d'éviter d'avoir un formulaire pour la création et pour l'édition, j'ai créé un même formulaire qui est ensuite appelé sur les pages spécifiques. En fonction des props que je lui envoie, certaines parties du code s'ajoutent ou non comme la méthode `PUT` qui ne doit être disponible que sur l'édition ou encore les value des input (avec l'utilisation de `optional()`, cela me permet de pouvoir récupérer facilement la valeur de l'élément si on est en édition).
+
+Ces méthodes sont ensuite appelées de cette façon dans mes pages :
+
+-   `<x-task-form :categories="$categories" />` pour task
+-   `<x-category-form />` pour category
+
+##### Tableau des tâches
+
+Etant utilisé à la fois dans la view `index` de task et dans la view `show` de category, j'ai préféré créer un component qui est ensuite appelé dans ces pages. Celui-ci est appelé de cette façon :
+
+`<x-tasks-table :tasks="$tasks" />`
