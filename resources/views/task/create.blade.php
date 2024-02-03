@@ -25,7 +25,7 @@
             </div>
         </div>
     @else
-        {{-- appelle du component formulaire avec les catégories en props --}}
+        {{-- appel du component formulaire avec les catégories en props --}}
         <x-task-form :categories="$categories" />
     @endif
 @endsection

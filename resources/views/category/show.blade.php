@@ -10,7 +10,7 @@
             {{ $category->name }}
         </h1>
 
-        {{-- appelle du composant tableau avec les tâches en props --}}
+        {{-- appel du composant tableau avec les tâches en props --}}
         <x-tasks-table :tasks="$tasks" />
 
         <a href="{{ route('category.index') }}"

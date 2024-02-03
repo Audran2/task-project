@@ -10,7 +10,7 @@
     <div class="container mx-auto">
         <h1 class="text-2xl font-bold mb-4 text-center">{{ $title }}</h1>
 
-        {{-- appelle du composant tableau avec les tâches en props --}}
+        {{-- appel du composant tableau avec les tâches en props --}}
         <x-tasks-table :tasks="$tasks" />
 
         <a href="{{ route('task.create') }}"
