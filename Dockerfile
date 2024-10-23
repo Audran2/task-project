@@ -1,30 +1,62 @@
-# Utiliser l'image webdevops/php-nginx
-FROM webdevops/php-nginx:8.2
+FROM webdevops/php-nginx:8.3-alpine
 
-# Définir le répertoire de travail
-WORKDIR /usr/share/nginx/html
+# Retrieve variables
+ARG DB_CONNECTION
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_DATABASE
+ARG DB_USERNAME
+ARG DB_PASSWORD
 
-# Installer les dépendances système nécessaires pour PDO
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+# Installation dans votre Image du minimum pour que Docker fonctionne
+RUN apk add oniguruma-dev libxml2-dev
+RUN docker-php-ext-install \
+        bcmath \
+        ctype \
+        fileinfo \
+        mbstring \
+        xml
 
-# Copier les fichiers de l'application
+# Installation dans votre image de Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Installation dans votre image de NodeJS
+RUN apk add nodejs npm
+
+ENV WEB_DOCUMENT_ROOT /app/public
+ENV APP_ENV production
+
+ENV APP_ENV production
+ENV APP_ENV production
+
+ENV DB_CONNECTION $DB_CONNECTION
+ENV DB_HOST $DB_HOST
+ENV DB_PORT $DB_PORT
+ENV DB_DATABASE $DB_DATABASE
+ENV DB_USERNAME $DB_USERNAME
+ENV DB_PASSWORD $DB_PASSWORD
+
+WORKDIR /app
 COPY . .
 
-COPY .env.example .env
+# On copie le fichier .env.example pour le renommer en .env
+# Vous pouvez modifier le .env.example pour indiquer la configuration de votre site pour la production
+RUN cp -n .env.example .env
 
-# Installer Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Installation et configuration de votre site pour la production
+# https://laravel.com/docs/10.x/deployment#optimizing-configuration-loading
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Generate security key
+RUN php artisan key:generate
+# Optimizing Configuration loading
+RUN php artisan config:cache
+# Optimizing Route loading
+RUN php artisan route:cache
+# Optimizing View loading
+RUN php artisan view:cache
 
-# Installer les dépendances de Laravel
-RUN composer install --no-interaction --optimize-autoloader
+# Compilation des assets de Breeze (ou de votre site)
+RUN npm install
+RUN npm run build
 
-# Assurer que les permissions sont correctement définies
-RUN chown -R www-data:www-data /usr/share/nginx/html
-
-# Exposer le port
-EXPOSE 80
-
-# Démarrer le service Nginx
-CMD ["supervisord", "-n"]
+RUN chown -R application:application .
