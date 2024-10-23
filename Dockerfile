@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     curl \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install pdo pgsql pdo_pgsql zip mbstring bcmath
+    && docker-php-ext-install pdo pgsql pdo_pgsql pdo_mysql zip mbstring bcmath
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -29,4 +29,4 @@ RUN chown -R www-data:www-data /var/www/html \
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "php artisan key:generate && php artisan migrate:fresh --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+CMD ["sh", "-c", "php artisan key:generate && php artisan config:clear && php artisan cache:clear && php artisan migrate:fresh --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
