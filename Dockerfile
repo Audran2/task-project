@@ -1,32 +1,30 @@
-FROM php:8.1-fpm
+# Utiliser l'image webdevops/php-nginx
+FROM webdevops/php-nginx:8.2
 
+# Définir le répertoire de travail
+WORKDIR /usr/share/nginx/html
+
+# Installer les dépendances système nécessaires pour PDO
 RUN apt-get update && apt-get install -y \
-    unzip \
-    git \
     libpq-dev \
-    libzip-dev \
-    libonig-dev \
-    curl \
-    && docker-php-ext-configure zip \
-    && docker-php-ext-install pdo pgsql pdo_pgsql pdo_mysql zip mbstring bcmath
+    && docker-php-ext-install pdo pdo_pgsql
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-WORKDIR /var/www/html
-
+# Copier les fichiers de l'application
 COPY . .
 
 COPY .env.example .env
 
-RUN composer install --no-interaction --prefer-dist
+# Installer Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN mkdir -p storage \
-    && mkdir -p bootstrap/cache
+# Installer les dépendances de Laravel
+RUN composer install --no-interaction --optimize-autoloader
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+# Assurer que les permissions sont correctement définies
+RUN chown -R www-data:www-data /usr/share/nginx/html
 
-EXPOSE 9000
+# Exposer le port
+EXPOSE 80
 
-CMD ["sh", "-c", "php artisan key:generate && php artisan config:clear && php artisan cache:clear && php artisan migrate:fresh --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+# Démarrer le service Nginx
+CMD ["supervisord", "-n"]
