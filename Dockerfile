@@ -18,8 +18,6 @@ COPY . .
 
 RUN composer install --no-interaction --prefer-dist
 
-RUN php artisan key:generate
-
 RUN mkdir -p storage \
     && mkdir -p bootstrap/cache
 
@@ -29,4 +27,4 @@ RUN chown -R www-data:www-data /var/www/html \
 
 EXPOSE 9000
 
-CMD php artisan migrate --force && php-fpm
+CMD ["sh", "-c", "php artisan key:generate && php artisan migrate --force && php-fpm"]
