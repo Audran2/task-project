@@ -8,11 +8,17 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     curl \
     && docker-php-ext-configure zip \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql zip mbstring bcmath
+    && docker-php-ext-install pdo pdo_pgsql zip mbstring bcmath
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html
+
+COPY . .
+
+RUN composer install --no-interaction --prefer-dist
+
+RUN php artisan key:generate
 
 RUN mkdir -p storage \
     && mkdir -p bootstrap/cache
@@ -22,3 +28,5 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
 EXPOSE 9000
+
+CMD php artisan migrate --force && php-fpm
