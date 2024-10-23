@@ -29,4 +29,4 @@ RUN chown -R www-data:www-data /var/www/html \
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "php artisan key:generate && php artisan migrate --force && php-fpm"]
+CMD ["sh", "-c", "php artisan key:generate && php artisan migrate:fresh --force && php-fpm"]
